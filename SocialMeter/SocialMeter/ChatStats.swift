@@ -28,22 +28,58 @@ extension String{
         }
     }
     
+    func getEmojis() -> String?{
+        var res = ""
+        for scalar in unicodeScalars {
+            switch scalar.value {
+            case 0x1F600...0x1F64F, // Emoticons
+            0x1F300...0x1F5FF, // Misc Symbols and Pictographs
+            0x1F680...0x1F6FF, // Transport and Map
+            0x2600...0x26FF,   // Misc symbols
+            0x2700...0x27BF,   // Dingbats
+            0xFE00...0xFE0F,   // Variation Selectors
+            0x1F900...0x1F9FF, // Supplemental Symbols and Pictographs
+            0x1F1E6...0x1F1FF: // Flags
+                res.append(Character.init(scalar))
+            default:
+                continue
+            }
+        }
+        return (res.count > 0) ? res : nil
+    }
+    
 }
 
+protocol ChatStatsObserver {
+    func onChatStatsChanged(chatStats: ChatStats)
+}
 
 class ChatStats{
     
+    static var main : ChatStats? = nil{
+        didSet{
+            if let chat = main{
+                for o in ChatStats.observers{
+                    o.onChatStatsChanged(chatStats: chat)
+                }
+            }
+        }
+    }
+    public static var observers = [ChatStatsObserver]()
+
     let text: String
     var messages : [String : Int] = [:]
+    var emojiCount : [UnicodeScalar : Int] = [:]
     
     let flaggedMessages = ["imagen omitida",
                            "Los mensajes en este grupo ahora están protegidos con cifrado de extremo a extremo."]
     
     init(txtFile: URL){
         text = try! String(contentsOf: txtFile)
+        analyze()
     }
     
-    func analyze(){
+    private func analyze(){
         
         let regex = try! NSRegularExpression(pattern: "\\[.+/.+/.+ .+\\] ([^:]*): (.*)", options: .caseInsensitive)
         
@@ -65,10 +101,23 @@ class ChatStats{
                     }
                 }
                 
+                if let emojis = msg.getEmojis(){
+                    
+                    for e in emojis.unicodeScalars{
+                        let val : Int = (emojiCount[e] ?? 0)!
+                        emojiCount[e] = val + 1
+                    }
+//                    print(emojis)
+                }
+                
             }
         }
         
         print(messages)
+        
+        for e in emojiCount.sorted(by: {$0.value < $1.value}){
+            print("\(Character(e.key)) : \(e.value) ")
+        }
         
     }
     

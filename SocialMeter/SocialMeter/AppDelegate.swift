@@ -15,7 +15,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
     
-    static public var chatStats : ChatStats? = nil
     
     func application(_ app: UIApplication,
                      open url: URL,
@@ -28,17 +27,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         var destinationURL = URL(fileURLWithPath: currentWorkingPath)
         destinationURL.appendPathComponent("unzipped")
-        
-        
-//        let files = fileManager.urls(for: destinationDir, in: .userDomainMask)
-//        for f in files{
-//            do{
-//                try fileManager.removeItem(at: f)
-//                print("Deleted \(url)")
-//            } catch{
-//                print("Problem deleting file:\(error)")
-//            }
-//        }
         
         do {
             var isDir: ObjCBool = false;
@@ -57,8 +45,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             let fileName = files.filter{URL(fileURLWithPath: $0).pathExtension == "txt"}[0]
             let filePath = destinationURL.appendingPathComponent(fileName)
             
-            AppDelegate.chatStats = ChatStats(txtFile: filePath)
-            AppDelegate.chatStats!.analyze()
+            let chat = ChatStats(txtFile: filePath)
+            ChatStats.main = chat
             
             print(filePath)
         } catch {
@@ -73,8 +61,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         
         let file = Bundle.main.path(forResource: "_chat", ofType: "txt")
-        AppDelegate.chatStats = ChatStats(txtFile: URL(fileURLWithPath: file!))
-        AppDelegate.chatStats!.analyze()
+        let chat = ChatStats(txtFile: URL(fileURLWithPath: file!))
+        ChatStats.main = chat
         
         // Override point for customization after application launch.
         return true

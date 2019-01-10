@@ -10,28 +10,35 @@ import UIKit
 
 import Charts
 
-class ViewController: UIViewController {
-    @IBOutlet weak var chartContainer: UIView!
+class ViewController: UIViewController, ChatStatsObserver {
+
+    @IBOutlet weak var container: UIView!
+    var chartView : PieChartView? = nil
     
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
         
-        if let chat = AppDelegate.chatStats{
-            
-            
-            var entries: [PieChartDataEntry] = Array()
-            for entry in chat.messages{
-                entries.append(PieChartDataEntry(value: Double(entry.value), label: entry.key))
-            }
-            
-            // Sample data
-//            let values: [Double] = [11, 33, 81, 52, 97, 101, 75]
-            createPieChartWithValues(values: entries)
+        ChatStats.observers.append(self)
+
+        if let chat = ChatStats.main{
+            pieChartFromChatStats(chat)
         }
     }
     
+    func pieChartFromChatStats(_ chatStats: ChatStats){
+        var entries: [PieChartDataEntry] = Array()
+        for entry in chatStats.messages{
+            entries.append(PieChartDataEntry(value: Double(entry.value), label: entry.key))
+        }
+        createPieChartWithValues(values: entries)
+    }
+    
     public func createPieChartWithValues(values: Array<PieChartDataEntry>){
+        
+        if let oldChart = chartView{
+            oldChart.removeFromSuperview()
+        }
         
         let dataSet = PieChartDataSet(values: values, label: "Number of Messages")
         dataSet.drawIconsEnabled = false
@@ -44,17 +51,36 @@ class ViewController: UIViewController {
             + ChartColorTemplates.pastel()
             + [UIColor(red: 51/255, green: 181/255, blue: 229/255, alpha: 1)]
         
-        let chart = PieChartView(frame: self.chartContainer.frame)//CGRect(x: 0, y: 0, width: 480, height: 350))
-        chart.backgroundColor = NSUIColor.clear
-        chart.centerText = "Number of Messages"
-        chart.drawEntryLabelsEnabled = false
-        chart.entryLabelFont = NSUIFont(name: "San Francisco", size: 20.0)
-        chart.data = PieChartData(dataSet: dataSet)
-        
-        self.chartContainer.addSubview(chart)
+        chartView = PieChartView(frame: self.container.frame)//CGRect(x: 0, y: 0, width: 480, height: 350))
+        if let chart = chartView{
+            chart.backgroundColor = NSUIColor.clear
+            chart.centerText = "Number of Messages"
+            chart.drawEntryLabelsEnabled = false
+            chart.entryLabelFont = NSUIFont(name: "San Francisco", size: 20.0)
+            chart.data = PieChartData(dataSet: dataSet)
+            self.container.addSubview(chart)
+        }
         
     }
-
-
+    
+    
+//    /// Observer
+//    override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
+//        super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
+//
+//        ChatStats.observers.append(self)
+//    }
+//
+//    required init?(coder aDecoder: NSCoder) {
+//        fatalError("init(coder:) has not been implemented")
+//    }
+    
+    deinit {
+        ChatStats.observers = ChatStats.observers.filter{ ($0 as? ViewController) == self}
+    }
+    
+    func onChatStatsChanged(chatStats: ChatStats) {
+        pieChartFromChatStats(chatStats)
+    }
 }
 
