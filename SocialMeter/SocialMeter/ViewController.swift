@@ -42,7 +42,7 @@ class ViewController: UIViewController, ChatStatsObserver {
                 self.container.addSubview(chart)
                 message.isHidden = true;
             } else{
-                print("Problem creating chart")
+                message.text = gp.errorMessage
             }
         }
         else{

@@ -25,7 +25,7 @@ class ChartPageViewController: UIPageViewController, UIPageViewControllerDataSou
     
     var controllers = [UIViewController]()
     
-    fileprivate func createControllers() {
+    private func createControllers() {
         
         controllers = []
         
@@ -50,9 +50,6 @@ class ChartPageViewController: UIPageViewController, UIPageViewControllerDataSou
         
         self.dataSource = self
         ChatStats.observers.append(self)
-        
-
-        // Do any additional setup after loading the view.
     }
     
     

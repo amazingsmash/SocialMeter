@@ -12,9 +12,16 @@ import Charts
 
 protocol GraphProvider{
     func createChart(frame: CGRect) -> UIView?
+    var errorMessage : String { get }
 }
 
 struct NMessagesPieChartProvider: GraphProvider{
+    var errorMessage: String{
+        get{
+            return "Error on Number of Messages Pie Chart"
+        }
+    }
+    
     let chat: ChatStats
     
     init(chat: ChatStats){
@@ -50,6 +57,12 @@ struct NMessagesPieChartProvider: GraphProvider{
 
 struct EmojiOccurencesBarChartProvider: GraphProvider{
     let member: Member
+    
+    var errorMessage: String{
+        get{
+            return "\(member.name) has not used any emoji."
+        }
+    }
     
     init(member: Member){
         self.member = member
