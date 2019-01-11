@@ -8,8 +8,10 @@
 
 import UIKit
 
-class ChartPageViewController: UIPageViewController, UIPageViewControllerDataSource {
-    
+class ChartPageViewController: UIPageViewController, UIPageViewControllerDataSource, ChatStatsObserver {
+    func onChatStatsChanged(chatStats: ChatStats) {
+        createControllers()
+    }
     
     func pageViewController(_ pageViewController: UIPageViewController, viewControllerBefore viewController: UIViewController) -> UIViewController? {
         guard let index = (controllers.index{$0 == viewController}) else{ return nil }
@@ -21,22 +23,39 @@ class ChartPageViewController: UIPageViewController, UIPageViewControllerDataSou
         return (index > 0) ? controllers[index-1] : nil
     }
     
-
     var controllers = [UIViewController]()
+    
+    fileprivate func createControllers() {
+        
+        controllers = []
+        
+        let chartVCID = "pieChartVC"
+        if let chat = ChatStats.main{
+            controllers.append(UIStoryboard(name: "Main", bundle: .main).instantiateViewController(withIdentifier: chartVCID))
+            (controllers.last as? ViewController)?.graphProvider = NMessagesPieChartProvider(chat: chat)
+            
+            for (_, member) in chat.members{
+                controllers.append(UIStoryboard(name: "Main", bundle: .main).instantiateViewController(withIdentifier: chartVCID))
+                (controllers.last as? ViewController)?.graphProvider = EmojiOccurencesBarChartProvider(member: member)
+            }
+            
+            setViewControllers([controllers.first!], direction: .forward, animated: false, completion: nil)
+        }
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        controllers = [
-            UIStoryboard(name: "Main", bundle: .main).instantiateViewController(withIdentifier: "pieChartVC")
-        ]
+        createControllers()
         
         self.dataSource = self
+        ChatStats.observers.append(self)
         
-        setViewControllers([controllers.first!], direction: .forward, animated: false, completion: nil)
 
         // Do any additional setup after loading the view.
     }
+    
+    
     
 
     /*

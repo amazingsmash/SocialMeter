@@ -21,6 +21,7 @@
 		D883DB5D21E382B600CD0DE5 /* ZIPFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D883DB5421E3808A00CD0DE5 /* ZIPFoundation.framework */; };
 		D883DB5E21E382B600CD0DE5 /* ZIPFoundation.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = D883DB5421E3808A00CD0DE5 /* ZIPFoundation.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		D8A10C9A21E77ED800359BE9 /* ChartPageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8A10C9921E77ED800359BE9 /* ChartPageViewController.swift */; };
+		D8A10C9C21E8CF0700359BE9 /* ChatGraphProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8A10C9B21E8CF0700359BE9 /* ChatGraphProvider.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -118,6 +119,7 @@
 		D883DB4A21E37AB100CD0DE5 /* file_icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = file_icon.png; sourceTree = "<group>"; };
 		D883DB4E21E3808A00CD0DE5 /* ZIPFoundation.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = ZIPFoundation.xcodeproj; path = "../ZIPFoundation-development/ZIPFoundation.xcodeproj"; sourceTree = "<group>"; };
 		D8A10C9921E77ED800359BE9 /* ChartPageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChartPageViewController.swift; sourceTree = "<group>"; };
+		D8A10C9B21E8CF0700359BE9 /* ChatGraphProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChatGraphProvider.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -171,6 +173,7 @@
 				D818705E21E4C5840097E87D /* ChatStats.swift */,
 				D883DB3821E374BE00CD0DE5 /* ViewController.swift */,
 				D8A10C9921E77ED800359BE9 /* ChartPageViewController.swift */,
+				D8A10C9B21E8CF0700359BE9 /* ChatGraphProvider.swift */,
 				D883DB3A21E374BE00CD0DE5 /* Main.storyboard */,
 				D883DB3D21E374C100CD0DE5 /* Assets.xcassets */,
 				D883DB3F21E374C100CD0DE5 /* LaunchScreen.storyboard */,
@@ -315,6 +318,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D8A10C9C21E8CF0700359BE9 /* ChatGraphProvider.swift in Sources */,
 				D818705F21E4C5840097E87D /* ChatStats.swift in Sources */,
 				D883DB3921E374BE00CD0DE5 /* ViewController.swift in Sources */,
 				D8A10C9A21E77ED800359BE9 /* ChartPageViewController.swift in Sources */,

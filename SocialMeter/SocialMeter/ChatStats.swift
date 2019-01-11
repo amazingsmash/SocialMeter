@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import UIKit
 
 extension String{
     
@@ -48,10 +49,38 @@ extension String{
         return (res.count > 0) ? res : nil
     }
     
+    func image(size: CGSize, fontSize: CGFloat) -> UIImage? {
+        UIGraphicsBeginImageContextWithOptions(size, false, 0)
+        UIColor.init(hue: 0.0, saturation: 0.0, brightness: 0.0, alpha: 0.0).set()
+        let rect = CGRect(origin: .zero, size: size)
+        UIRectFill(CGRect(origin: .zero, size: size))
+        (self as AnyObject).draw(in: rect, withAttributes: [.font: UIFont.systemFont(ofSize: fontSize)])
+        let image = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        return image
+    }
+    
 }
 
 protocol ChatStatsObserver {
     func onChatStatsChanged(chatStats: ChatStats)
+}
+
+struct Member{
+    let name : String;
+    var nMsg : Int = 0;
+    var emojiCount : [UnicodeScalar : Int] = [:]
+    
+    init(memberName name: String){
+        self.name = name
+    }
+    
+    mutating func addEmojis(newEmojis: String){
+        for e in newEmojis.unicodeScalars{
+            let val : Int = (emojiCount[e] ?? 0)!
+            emojiCount[e] = val + 1
+        }
+    }
 }
 
 class ChatStats{
@@ -66,10 +95,10 @@ class ChatStats{
         }
     }
     public static var observers = [ChatStatsObserver]()
+    
+    public var members = [String : Member]()
 
     let text: String
-    var messages : [String : Int] = [:]
-    var emojiCount : [UnicodeScalar : Int] = [:]
     
     let flaggedMessages = ["imagen omitida",
                            "Los mensajes en este grupo ahora están protegidos con cifrado de extremo a extremo."]
@@ -87,38 +116,26 @@ class ChatStats{
             let line = String(l)
             let m = regex.firstMatch(in: line, range: line.maxRange)
             if let m = m{
-//                print(m.range)
                 let nameRange = m.range(at: 1)
                 let name = line.slice(range: nameRange).trimmingCharacters(in: CharacterSet.init(charactersIn: " "))
                 
                 let msgRange = m.range(at: 2)
                 let msg = String(line.slice(range: msgRange))
                 if !flaggedMessages.contains(msg){
-                    if let x = messages[name]{
-                        messages[name] = x + 1
-                    }else{
-                        messages[name] = 1
-                    }
-                }
-                
-                if let emojis = msg.getEmojis(){
                     
-                    for e in emojis.unicodeScalars{
-                        let val : Int = (emojiCount[e] ?? 0)!
-                        emojiCount[e] = val + 1
+                    var member = members[name] ?? Member(memberName: name)
+                    member.nMsg += 1
+                    if let emojis = msg.getEmojis(){
+                        member.addEmojis(newEmojis: emojis)
                     }
-//                    print(emojis)
+                    members[name] = member
                 }
+              
                 
             }
         }
         
-        print(messages)
-        
-        for e in emojiCount.sorted(by: {$0.value < $1.value}){
-            print("\(Character(e.key)) : \(e.value) ")
-        }
-        
+//        print(messages)
     }
     
 }
