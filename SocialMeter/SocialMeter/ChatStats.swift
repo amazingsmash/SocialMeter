@@ -68,8 +68,11 @@ protocol ChatStatsObserver {
 
 struct Member{
     let name : String;
-    var nMsg : Int = 0;
+    var nMsg : Int {
+        get{ return messageTime.count}
+    }
     var emojiCount : [UnicodeScalar : Int] = [:]
+    var messageTime = [Date]()
     
     init(memberName name: String){
         self.name = name
@@ -80,6 +83,10 @@ struct Member{
             let val : Int = (emojiCount[e] ?? 0)!
             emojiCount[e] = val + 1
         }
+    }
+    
+    mutating func addMsgTime(_ date : Date){
+        messageTime.append(date)
     }
 }
 
@@ -97,7 +104,7 @@ class ChatStats{
     public static var observers = [ChatStatsObserver]()
     
     public var members = [String : Member]()
-
+    
     let text: String
     
     let flaggedMessages = ["imagen omitida",
@@ -110,32 +117,49 @@ class ChatStats{
     
     private func analyze(){
         
-        let regex = try! NSRegularExpression(pattern: "\\[.+/.+/.+ .+\\] ([^:]*): (.*)", options: .caseInsensitive)
+        let regex = try! NSRegularExpression(pattern: "\\[(.+/.+/.+ .+:.+:.+)\\] ([^:]*): (.*)", options: .caseInsensitive)
+        
+        func stringToDate(_ string: String) -> Date?{
+            //            let isoDate = "2016-04-14T10:44:00+0000"
+            let dateFormatter = DateFormatter()
+            //            dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZ"
+            dateFormatter.dateFormat = "dd/MM/yy' 'HH:mm:ss"
+            dateFormatter.locale = Locale(identifier: "en_US_POSIX") // set locale to reliable US_POSIX
+            
+            guard let date = dateFormatter.date(from:string) else{ return nil}
+            return date
+        }
         
         for l in text.components(separatedBy: CharacterSet.newlines){
             let line = String(l)
             let m = regex.firstMatch(in: line, range: line.maxRange)
             if let m = m{
-                let nameRange = m.range(at: 1)
-                let name = line.slice(range: nameRange).trimmingCharacters(in: CharacterSet.init(charactersIn: " "))
+                let dateString = line.slice(range: m.range(at: 1))
+                //                print(dateString)
+                guard let date = stringToDate(String(dateString)) else{ continue }
+//                print(date)
                 
-                let msgRange = m.range(at: 2)
+                let name = line.slice(range: m.range(at: 2)).trimmingCharacters(in: CharacterSet.init(charactersIn: " "))
+                let msgRange = m.range(at: 3)
                 let msg = String(line.slice(range: msgRange))
                 if !flaggedMessages.contains(msg){
                     
-                    var member = members[name] ?? Member(memberName: name)
-                    member.nMsg += 1
-                    if let emojis = msg.getEmojis(){
-                        member.addEmojis(newEmojis: emojis)
+                    if !members.contains(where: {$0.key == name}){
+                        members[name] = Member(memberName: name)
                     }
-                    members[name] = member
+                    
+                    members[name]!.addMsgTime(date)
+                    
+                    if let emojis = msg.getEmojis(){
+                        members[name]!.addEmojis(newEmojis: emojis)
+                    }
                 }
-              
+                
                 
             }
         }
         
-//        print(messages)
+        //        print(messages)
     }
     
 }

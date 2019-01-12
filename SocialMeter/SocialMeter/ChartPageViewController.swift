@@ -29,7 +29,7 @@ class ChartPageViewController: UIPageViewController, UIPageViewControllerDataSou
         
         controllers = []
         
-        let chartVCID = "pieChartVC"
+        let chartVCID = "graphContainerVC"
         if let chat = ChatStats.main{
             controllers.append(UIStoryboard(name: "Main", bundle: .main).instantiateViewController(withIdentifier: chartVCID))
             (controllers.last as? ViewController)?.graphProvider = NMessagesPieChartProvider(chat: chat)
@@ -37,6 +37,9 @@ class ChartPageViewController: UIPageViewController, UIPageViewControllerDataSou
             for (_, member) in chat.members{
                 controllers.append(UIStoryboard(name: "Main", bundle: .main).instantiateViewController(withIdentifier: chartVCID))
                 (controllers.last as? ViewController)?.graphProvider = EmojiOccurencesBarChartProvider(member: member)
+                
+                controllers.append(UIStoryboard(name: "Main", bundle: .main).instantiateViewController(withIdentifier: chartVCID))
+                (controllers.last as? ViewController)?.graphProvider = MessagesTimeLineChartProvider(member: member)
             }
             
             setViewControllers([controllers.first!], direction: .forward, animated: false, completion: nil)

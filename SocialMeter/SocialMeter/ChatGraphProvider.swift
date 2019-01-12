@@ -107,3 +107,61 @@ struct EmojiOccurencesBarChartProvider: GraphProvider{
 }
 
 
+
+struct MessagesTimeLineChartProvider: GraphProvider{
+    let member: Member
+    
+    var errorMessage: String{
+        get{
+            return "\(member.name) has not send messages."
+        }
+    }
+    
+    init(member: Member){
+        self.member = member
+    }
+    
+    func createChart(frame: CGRect) -> UIView?{
+        
+        let msgAcc = member.messageTime.map { (date: Date) -> Int in
+            let cal = Calendar.current
+            return cal.component(.month, from: date) + 12 * cal.component(.year, from: date)
+            
+//            return Int(date.timeIntervalSince1970 / Double( 30 * 24 * 60 * 60 ))
+        }
+        
+        var values = [Int : Int]()
+        for a in msgAcc{
+            if let v = values[a]{
+                values[a] = v + 1;
+            } else{
+                values[a] = 1;
+            }
+        }
+        
+        
+//        let values: [Double] = [8, 104, 81, 93, 52, 44, 97, 101, 75, 28,
+//                                76, 25, 20, 13, 52, 44, 57, 23, 45, 91,
+//                                99, 14, 84, 48, 40, 71, 106, 41, 45, 61]
+        
+        var entries: [ChartDataEntry] = Array()
+        let vs = values.sorted { (a: (key: Int, value: Int), b: (key: Int, value: Int)) -> Bool in return a.key < b.key}
+        for (i, value) in vs
+        {
+            entries.append(ChartDataEntry(x: Double(i), y: Double(value), icon: nil))
+        }
+        
+        let dataSet = LineChartDataSet(values: entries, label: "\(member.name) monthly messages.")
+        dataSet.drawIconsEnabled = false
+        dataSet.iconsOffset = CGPoint(x: 0, y: 20.0)
+        
+        let chart = LineChartView(frame: CGRect(x: 0, y: 0, width: 480, height: 350))
+        chart.backgroundColor = NSUIColor.clear
+        chart.leftAxis.axisMinimum = 0.0
+        chart.rightAxis.axisMinimum = 0.0
+        chart.data = LineChartData(dataSet: dataSet)
+        return chart
+    }
+}
+
+
